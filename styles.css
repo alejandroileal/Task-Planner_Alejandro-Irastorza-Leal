@@ -414,6 +414,13 @@ body {
   font-size: 12px;
 }
 
+.news__author {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
 .news__link {
   font-weight: bold;
   text-decoration: none;
