@@ -121,9 +121,17 @@ const app = {
       listElement.id = task.id;
 
       listElement.innerHTML = `<div class="task-card__container">
-                  <p class="task-card__expiration">${task.dueDate}</p>
+                  <p class="task-card__expiration">${new Date(
+                    task.dueDate
+                  ).toLocaleString("es-Es", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}</p>
                   <h3 class="task-card__title">${task.title}</h3>
-                  <!-- <p class="task-card__description">${task.description}</p> -->
+                  <!-- <p class="task-card__description">${
+                    task.description
+                  }</p> -->
                   <p class="task-card__state--completed">${task.status}</p>
                   <input type="checkbox" class="task-card__checkbox" id='checkedTaskBox'>
                 </div>`;
@@ -286,7 +294,9 @@ const app = {
       newsFromState.forEach((newsItem) => {
         const liItem = document.createElement("li");
         liItem.classList.add("news__item");
-        liItem.innerHTML = `<div class="news__photo" style="background-image: url(${newsItem.urlToImage})"></div>
+        liItem.innerHTML = `<div class="news__photo" style="background-image: url(${
+          newsItem.urlToImage
+        })"></div>
                 <div class="news__info-container">
                   <h2 class="news__title">${newsItem.title}</h2>
                   <div class="news__aux-info">
@@ -294,7 +304,13 @@ const app = {
                     <span>|</span>
                     <p class="news__source">${newsItem.source.name}</p>
                     <span>|</span>
-                    <p class="news__publishedAt">${newsItem.publishedAt}</p>
+                    <p class="news__publishedAt">${new Date(
+                      newsItem.publishedAt
+                    ).toLocaleString("es-Es", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}</p>
                   </div>
 
                   <p class="news__description">${newsItem.description}</p>
@@ -337,7 +353,7 @@ const app = {
     this.navigate("dashboard");
   },
 
-  async fetchNews(topic = "technology") {
+  async fetchNews(topic = "code") {
     try {
       const response = await fetch(
         `https://newsapi.org/v2/everything?q=${topic}&apikey=${this.state.newsSlice.apikey}`
