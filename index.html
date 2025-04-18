@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+
+<body>
+  <div class="dashboard">
+    <aside class="dashboard__aside">
+      <div class="dashboard__logo-container">
+        <img class="dashboard__logo" src="./logo.png" alt="Un logotipo en forma de D con la palabra Devotion">
+        <h1 class="dashboard__logo-title">Devotion</h1>
+      </div>
+      <nav class="dashboard__nav">
+        <p class="dashboard__nav-title">Atajos</p>
+        <a class="dashboard__a" href="#dashboard"><button class="dashboard__nav-button">🖥️ Dashboard</button></a>
+        <button class="dashboard__nav-button"><a class="dashboard__a" href="#newTask">✍🏼 Nueva task</a></button>
+        <p class="dashboard__nav-title">Recursos</p>
+        <button class="dashboard__nav-button">📰 Últimas noticias</button>
+
+      </nav>
+      <div class="dashboard-user-container">
+        <p class="dashboard__profile-picture">AI</p>
+        <p class="dashboard__profile-name">Alejandro Irastorza</p>
+      </div>
+    </aside>
+    <main class="dashboard__main" id="mainLocator">
+
+      <section id="section-3" class="dashboard__section">
+        <div class="dashboard__top-navigator">
+          <div class="dashboard__top-left">
+            <p>Back Button</p>
+            <div class="dashboard__top-left-page-title">
+              <p>📰</p>
+              <p>Noticias</p>
+            </div>
+          </div>
+        </div>
+        <header class="dashboard__header">
+          <p class="dashboard__icon">📰</p>
+        </header>
+
+        <div class="dasboard__section-content">
+          <h1 class="dashboard__main-title">Últimas noticias</h1>
+
+          <section class="news__widget">
+            <div class="news__search-container">
+              <input class="news__search-input" type="text" placeholder="Busca un tema en específico">
+              <button class="news__search-button">Buscar</button>
+            </div>
+
+            <ul class="news__list">
+              <li class="news__item">
+                <div class="news__photo" style="background-image: url(./cielo.jpeg);"></div>
+                <div class="news__info-container">
+                  <h2 class="news__title">Título de la noticia</h2>
+                  <div class="news__aux-info">
+                    <p class="news__author">Autor</p>
+                    <span>|</span>
+                    <p class="news__source">Source</p>
+                    <span>|</span>
+                    <p class="news__publishedAt">Published At</p>
+                  </div>
+
+                  <p class="news__description">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aperiam
+                    perspiciatis sit, repudiandae aliquam temporibus explicabo, placeat dolores error nesciunt
+                    voluptatem voluptatum dolor commodi porro odio optio, alias accusamus quasi sapiente.</p>
+                  <a href="" class="news__link">Leer más</a>
+
+                </div>
+              </li>
+
+              <li class="news__item">
+                <div class="news__photo" style="background-image: url(./cielo.jpeg);"></div>
+                <div class="news__info-container">
+                  <h2 class="news__title">Título de la noticia</h2>
+                  <div class="news__aux-info">
+                    <p class="news__author">Autor</p>
+                    <span>|</span>
+                    <p class="news__source">Source</p>
+                    <span>|</span>
+                    <p class="news__publishedAt">Published At</p>
+                  </div>
+
+                  <p class="news__description">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aperiam
+                    perspiciatis sit, repudiandae aliquam temporibus explicabo, placeat dolores error nesciunt
+                    voluptatem voluptatum dolor commodi porro odio optio, alias accusamus quasi sapiente.</p>
+                  <a href="" class="news__link">Leer más</a>
+
+                </div>
+              </li>
+
+              <li class="news__item">
+                <div class="news__photo" style="background-image: url(./cielo.jpeg);"></div>
+                <div class="news__info-container">
+                  <h2 class="news__title">Título de la noticia</h2>
+                  <div class="news__aux-info">
+                    <p class="news__author">Autor</p>
+                    <span>|</span>
+                    <p class="news__source">Source</p>
+                    <span>|</span>
+                    <p class="news__publishedAt">Published At</p>
+                  </div>
+
+                  <p class="news__description">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aperiam
+                    perspiciatis sit, repudiandae aliquam temporibus explicabo, placeat dolores error nesciunt
+                    voluptatem voluptatum dolor commodi porro odio optio, alias accusamus quasi sapiente.</p>
+                  <a href="" class="news__link">Leer más</a>
+
+                </div>
+              </li>
+            </ul>
+          </section>
+        </div>
+
+      </section>
+
+      <section id="section-1" class="dashboard__section">
+        <div class="dashboard__top-navigator">
+          <div class="dashboard__top-left">
+            <p>Back Button</p>
+            <div class="dashboard__top-left-page-title">
+              <p>🖥️</p>
+              <p>Dashboard</p>
+            </div>
+          </div>
+        </div>
+        <header class="dashboard__header">
+          <p class="dashboard__icon">🖥️</p>
+        </header>
+
+        <div class="dasboard__section-content">
+          <h1 class="dashboard__main-title">Dashboard</h1>
+          <section class="cards__widget">
+            <h2 class="cards__title">Tasks</h2>
+            <div class="cards__filter-container">
+              <p class="cards__filter-option">Todos</p>
+              <p class="cards__filter-option">Pendientes</p>
+              <p class="cards__filter-option">En progreso</p>
+              <p class="cards__filter-option">Completados</p>
+            </div>
+            <ul class="cards__list" id="tasksList">
+              <li class="task-card__list-item">
+                <div class="task-card__container">
+                  <p class="task-card__expiration">20 de abril</p>
+                  <h3 class="task-card__title">Hacer proyecto de programación</h3>
+                  <!-- <p class="task-card__description">Descripcción breve de la task</p> -->
+                  <p class="task-card__state--completed">Completado</p>
+                  <input type="checkbox" class="task-card__checkbox">
+                </div>
+              </li>
+
+              <li class="task-card__list-item">
+                <div class="task-card__container">
+                  <p class="task-card__expiration">20 de abril</p>
+
+                  <h3 class="task-card__title">Completar lecciones de HTML</h3>
+                  <!-- <p class="task-card__description">Descripcción breve de la task</p> -->
+                  <p class="task-card__state--pending">Pendiente</p>
+                  <input type="checkbox" class="task-card__checkbox">
+
+                </div>
+              </li>
+
+              <li class="task-card__list-item">
+                <div class="task-card__container">
+                  <p class="task-card__expiration">20 de abril</p>
+                  <h3 class="task-card__title">Maquetar sitio web</h3>
+                  <!-- <p class="task-card__description">Descripcción breve de la task</p> -->
+                  <p class="task-card__state--progress">En progreso</p>
+                  <input type="checkbox" class="task-card__checkbox">
+
+                </div>
+              </li>
+            </ul>
+          </section>
+
+
+
+        </div>
+
+
+      </section>
+
+      <section id="section-2" class="dashboard__section">
+        <div class="dashboard__top-navigator">
+          <div class="dashboard__top-left">
+            <p>Back Button</p>
+            <div class="dashboard__top-left-page-title">
+              <p>✍🏼</p>
+              <p>Nueva task</p>
+            </div>
+          </div>
+        </div>
+
+        <header class="new-task__header">
+          <p class="dashboard__icon">✍🏼</p>
+        </header>
+
+        <div class="dashboard__section-content">
+          <form class="new-task__form" action="submit">
+            <textarea rows="1" class="new-task__input-title" placeholder="Nueva task"></textarea>
+            <textarea rows="3" class="new-task__input-description" id="new-task-description"
+              placeholder="Descripcción"></textarea>
+
+            <div class="inputs-container">
+              <label class="new-task__label" for="newTaskDate">Vencimiento</label>
+              <input class="new-task__input-date" id="newTaskDate" type="date">
+            </div>
+
+            <div class="inputs-container"><label class="new-task__label" for="newTaskSelect">Estatus</label>
+              <select class="new-task__select" id="newTaskSelect">
+                <option value="">Pendiente</option>
+                <option value="">En proceso</option>
+                <option value="">Completado</option>
+              </select>
+            </div>
+
+            <button class="new-task__submit-button">Añadir task</button>
+
+          </form>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+
+
+</body>
+
+</html>
