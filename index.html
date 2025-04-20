@@ -19,9 +19,10 @@
       <nav class="dashboard__nav">
         <p class="dashboard__nav-title">Atajos</p>
         <a class="dashboard__a" href="#dashboard"><button class="dashboard__nav-button">🖥️ Dashboard</button></a>
-        <button class="dashboard__nav-button"><a class="dashboard__a" href="#newTask">✍🏼 Nueva task</a></button>
-        <p class="dashboard__nav-title">Recursos</p>
         <button class="dashboard__nav-button"><a href="#news" class="dashboard__a">📰 Últimas noticias</a></button>
+        <p class="dashboard__nav-title">Acciones</p>
+        <a class="dashboard__a" href="#newTask"><button class="dashboard__nav-button">✍🏼 Nueva task</button></a>
+        <a class="dashboard__a" href="#newEvent"><button class="dashboard__nav-button">📆 Nuevo evento</button></a>
 
       </nav>
       <div class="dashboard-user-container">
@@ -30,6 +31,46 @@
       </div>
     </aside>
     <main class="dashboard__main" id="mainLocator">
+
+      <!-- <section id="section-4" class="dashboard__section">
+        <div class="dashboard__top-navigator">
+          <div class="dashboard__top-left">
+            <p>Back Button</p>
+            <div class="dashboard__top-left-page-title">
+              <p>📆</p>
+              <p>Nuevo evento</p>
+            </div>
+          </div>
+        </div>
+
+        <header class="new-task__header">
+          <p class="dashboard__icon">📆</p>
+        </header>
+
+        <div class="dashboard__section-content">
+          <form class="new-task__form" action="submit">
+            <textarea rows="1" class="new-task__input-title" placeholder="Nuevo evento"></textarea>
+            <div class="inputs-container">
+              <label class="new-event__label" for="newEventDate">Fecha</label>
+              <input class="new-event__input-date" id="newEventDate" type="date">
+            </div>
+            <div class="inputs-container">
+              <label class="new-event__label" for="newEventTime">Hora</label>
+              <input class="new-event__input-date" id="newEventTime" type="time">
+            </div>
+            <textarea rows="3" class="new-task__input-description" id="new-task-description"
+              placeholder="Detalles relevantes"></textarea>
+            <button class="new-task__submit-button">Añadir evento</button>
+
+          </form>
+        </div>
+
+      </section>
+
+      <section class="loading__section">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/YouTube_loading_symbol_3_%28transparent%29.gif"
+          alt="" srcset="">
+      </section>
 
       <section id="section-3" class="dashboard__section">
         <div class="dashboard__top-navigator">
@@ -118,7 +159,7 @@
           </section>
         </div>
 
-      </section>
+      </section> -->
 
       <section id="section-1" class="dashboard__section">
         <div class="dashboard__top-navigator">
@@ -180,6 +221,21 @@
             </ul>
           </section>
 
+          <section class="cards__widget">
+            <h2 class="cards__title">Eventos</h2>
+            <ul class="cards__list">
+              <li class="event-card__list-container">
+                <div class="event__weather-img">
+                  <p>Min: 30</p>
+                  <p>Max: 40</p>
+                </div>
+                <div class="event__info-container">
+                  <h3>Título del evento</h3>
+                </div>
+              </li>
+            </ul>
+          </section>
+
 
 
         </div>
@@ -187,7 +243,7 @@
 
       </section>
 
-      <section id="section-2" class="dashboard__section">
+      <!-- <section id="section-2" class="dashboard__section">
         <div class="dashboard__top-navigator">
           <div class="dashboard__top-left">
             <p>Back Button</p>
@@ -226,7 +282,7 @@
           </form>
         </div>
 
-      </section>
+      </section> -->
 
     </main>
   </div>

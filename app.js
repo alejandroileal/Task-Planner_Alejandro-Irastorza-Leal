@@ -35,9 +35,69 @@ const app = {
       currentTask: undefined,
       filter: "Todos",
     },
+    eventsSlice: {
+      events: [],
+      currentEvent: null,
+      avilableCities: [
+        "Madrid",
+        "Barcelona",
+        "Valencia",
+        "Sevilla",
+        "Zaragoza",
+        "Málaga",
+        "Murcia",
+        "Palma",
+        "Las Palmas de Gran Canaria",
+        "Bilbao",
+        "Alicante",
+        "Córdoba",
+        "Valladolid",
+        "Vigo",
+        "Gijón",
+        "Hospitalet de Llobregat",
+        "La Coruña",
+        "Granada",
+        "Vitoria-Gasteiz",
+        "Elche",
+        "Oviedo",
+        "Santa Cruz de Tenerife",
+        "Badalona",
+        "Cartagena",
+        "Terrassa",
+        "Jerez de la Frontera",
+        "Sabadell",
+        "Móstoles",
+        "Alcalá de Henares",
+        "Pamplona",
+        "Fuenlabrada",
+        "Almería",
+        "Leganés",
+        "San Sebastián",
+        "Burgos",
+        "Santander",
+        "Castellón de la Plana",
+        "Albacete",
+        "Getafe",
+        "Salamanca",
+        "Logroño",
+        "Huelva",
+        "Badajoz",
+        "Lleida",
+        "Tarragona",
+        "León",
+        "Cádiz",
+        "Marbella",
+        "Torrejón de Ardoz",
+      ],
+      currentCity: null,
+    },
     newsSlice: {
       apikey: "61e3f2de767349ca9252ed0abf4d3215",
       news: null,
+    },
+    weatherSlice: {
+      opencageApiKey: "c54de52228dc4c289948de575b105fd3",
+      openWeatherApiKey: "96cb6093c994e234f88e5034dd735bea",
     },
   },
 
@@ -78,7 +138,9 @@ const app = {
         break;
       case "news":
         this.renderNews();
-        console.log("In");
+        break;
+      case "newEvent":
+        this.renderEventForm();
         break;
       default:
         break;
@@ -158,7 +220,8 @@ const app = {
           this.state.tasksSlice.filter.toLowerCase() ===
           filterButton.textContent.toLowerCase()
         ) {
-          filterButtonElement.style.backgroundColor = "#7AC0DE";
+          filterButtonElement.style.backgroundColor = "#9AF0FF";
+          filterButtonElement.style.borderColor = "#9AF0FF";
         }
         filterButton.addEventListener("click", (e) => {
           const filter = e.currentTarget.textContent;
@@ -233,7 +296,6 @@ const app = {
       }
     }
 
-    htmlActions;
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
@@ -241,6 +303,59 @@ const app = {
         this.updateTask(e.target);
       } else {
         this.createTask(e.target);
+      }
+    });
+  },
+
+  renderEventForm() {
+    this.elements.main.element.innerHTML = `<section id="section-4" class="dashboard__section">
+        <div class="dashboard__top-navigator">
+          <div class="dashboard__top-left">
+            <p>Back Button</p>
+            <div class="dashboard__top-left-page-title">
+              <p>📆</p>
+              <p>Nuevo evento</p>
+            </div>
+          </div>
+        </div>
+
+        <header class="new-task__header">
+          <p class="dashboard__icon">📆</p>
+        </header>
+
+        <div class="dashboard__section-content">
+          <form class="new-event__form" action="submit" id="addEventForm">
+            <textarea name="title" rows="1" class="new-task__input-title" placeholder="Nuevo evento"></textarea>
+            <div class="inputs-container">
+              <label class="new-event__label" for="newEventDate">Fecha</label>
+              <input name="date" class="new-event__input-date" id="newEventDate" type="date">
+            </div>
+            <div class="inputs-container">
+              <label class="new-event__label" for="newEventTime">Hora</label>
+              <input name="time" class="new-event__input-date" id="newEventTime" type="time">
+            </div>
+            <textarea name="details" rows="3" class="new-event__input-details" id="new-event-details"
+              placeholder="Detalles relevantes"></textarea>
+            <button class="new-event__submit-button">${
+              this.state.eventsSlice.currentEvent
+                ? "Modificar evento"
+                : "Añadir evento"
+            }</button>
+
+          </form>
+        </div>
+
+      </section>`;
+
+    const form = document.querySelector("#addEventForm");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      if (this.state.eventsSlice.currentEvent) {
+        console.log("Es Update");
+      } else {
+        this.createEvent(e.target);
       }
     });
   },
@@ -258,7 +373,7 @@ const app = {
             </div>
           </div>
         </div>
-        <header class="dashboard__header">
+        <header class="news__header">
           <p class="dashboard__icon">📰</p>
         </header>
 
@@ -322,6 +437,13 @@ const app = {
       });
   },
 
+  renderLoading() {
+    this.elements.main.element.innerHTML = `<section class="loading__section">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/YouTube_loading_symbol_3_%28transparent%29.gif"
+          alt="" srcset="">
+      </section>`;
+  },
+
   createTask(form) {
     const newTask = {
       id: crypto.randomUUID(),
@@ -334,6 +456,21 @@ const app = {
     //Aquí puedo hacer las validaciones con mensaje de error
 
     this.state.tasksSlice.tasks.push(newTask);
+    this.saveToLs();
+    this.navigate("dashboard");
+  },
+
+  async createEvent(form) {
+    const newEvent = {
+      id: crypto.randomUUID(),
+      title: form.title.value,
+      date: form.date.value,
+      time: form.time.value,
+      details: form.details.value,
+      weatherData: await this.fetchWeather(form.date.value),
+    };
+
+    this.state.eventsSlice.events.push(newEvent);
     this.saveToLs();
     this.navigate("dashboard");
   },
@@ -361,7 +498,32 @@ const app = {
       const { articles } = await response.json();
 
       this.state.newsSlice.news = articles;
-      console.log(this.state.newsSlice.news);
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  async fetchWeather(date) {
+    try {
+      const eventDate = new Date(date);
+      const timestamp = Math.floor(eventDate.getTime() / 1000);
+      // const response = await fetch(
+      //   `https://api.openweathermap.org/data/2.5/weather?lat=40.4165&lon=-3.70256&appid=${this.state.weatherSlice.openWeatherApiKey}&units=metric&lang=es`
+      // );
+
+      const newResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?lat=40.4165&lon=-3.70256&appid=${this.state.weatherSlice.openWeatherApiKey}&units=metric&lang=es`
+      );
+
+      // const data = await response.json();
+
+      const { list } = await newResponse.json();
+
+      const data = list.filter((data) => data.dt === timestamp);
+
+      console.log({ timestamp, list, data });
+
+      return data.length === 1 ? data[0].main : undefined;
     } catch (error) {
       console.log(error);
     }
@@ -373,6 +535,10 @@ const app = {
 
   saveToLs() {
     localStorage.setItem("tasks", JSON.stringify(this.state.tasksSlice.tasks));
+    localStorage.setItem(
+      "events",
+      JSON.stringify(this.state.eventsSlice.events)
+    );
   },
   getFromLs() {
     this.state.tasksSlice.tasks =
