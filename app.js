@@ -1,83 +1,19 @@
-const htmlActions = {
-  getById: (id) => document.getElementById(id),
-  refreshElement: (elementId, callback) => {
-    const element = htmlActions.getById(elementId);
-    element.replaceChildren();
-    callback();
-  },
-  showElement: (elementId) => {
-    htmlActions.getById(elementId).style.display = "block";
-  },
-  hideElement: (elementId) => {
-    htmlActions.getById(elementId).style.display = "none";
-  },
-
-  showSimpleDialog: (text) => {
-    alert(text);
-  },
-};
+import { dashboard } from "./src/components/dashboard.js";
+import { eventForm } from "./src/components/eventForm.js";
+import { mobileNav } from "./src/components/mobileNav.js";
+import { taskForm } from "./src/components/taskFrom.js";
+import { htmlActions } from "./src/utils/htmlActions.js";
 
 const app = {
   state: {
     tasksSlice: {
       tasks: [],
-      currentTask: undefined,
+      currentTask: null,
       filter: "Todos",
     },
     eventsSlice: {
       events: [],
       currentEvent: null,
-      avilableCities: [
-        "Madrid",
-        "Barcelona",
-        "Valencia",
-        "Sevilla",
-        "Zaragoza",
-        "Málaga",
-        "Murcia",
-        "Palma",
-        "Las Palmas de Gran Canaria",
-        "Bilbao",
-        "Alicante",
-        "Córdoba",
-        "Valladolid",
-        "Vigo",
-        "Gijón",
-        "Hospitalet de Llobregat",
-        "La Coruña",
-        "Granada",
-        "Vitoria-Gasteiz",
-        "Elche",
-        "Oviedo",
-        "Santa Cruz de Tenerife",
-        "Badalona",
-        "Cartagena",
-        "Terrassa",
-        "Jerez de la Frontera",
-        "Sabadell",
-        "Móstoles",
-        "Alcalá de Henares",
-        "Pamplona",
-        "Fuenlabrada",
-        "Almería",
-        "Leganés",
-        "San Sebastián",
-        "Burgos",
-        "Santander",
-        "Castellón de la Plana",
-        "Albacete",
-        "Getafe",
-        "Salamanca",
-        "Logroño",
-        "Huelva",
-        "Badajoz",
-        "Lleida",
-        "Tarragona",
-        "León",
-        "Cádiz",
-        "Marbella",
-        "Torrejón de Ardoz",
-      ],
       currentCity: null,
     },
     newsSlice: {
@@ -92,6 +28,7 @@ const app = {
 
   elements: {
     main: { id: "mainLocator", element: htmlActions.getById("mainLocator") },
+    dashboard: { id: "dashboard", element: htmlActions.getById("dashboard") },
     tasksList: {
       id: "tasksList",
       element: htmlActions.getById("tasksList"),
@@ -135,58 +72,29 @@ const app = {
       case "newEvent":
         this.renderEventForm();
         break;
+      case "nav":
+        this.renderMobileNav();
+        break;
       default:
+        this.renderDashboard();
         break;
     }
   },
 
   renderDashboard() {
-    this.elements.main.element.innerHTML = `<section id="section-1" class="dashboard__section">
-        <div class="dashboard__top-navigator">
-          <div class="dashboard__top-left">
-            <p>Back Button</p>
-            <div class="dashboard__top-left-page-title">
-              <p>🖥️</p>
-              <p>Dashboard</p>
-            </div>
-          </div>
-        </div>
-        <header class="dashboard__header">
-          <p class="dashboard__icon">🖥️</p>
-        </header>
+    this.elements.main.element.innerHTML = dashboard(
+      this.state.tasksSlice.tasks,
+      this.state.eventsSlice.events
+    );
 
-        <div class="dasboard__section-content">
-          <h1 class="dashboard__main-title">Dashboard</h1>
-          <section class="cards__widget">
-            <h2 class="cards__title">Tasks</h2>
-            <div class="cards__filter-container">
-              <p class="cards__filter-option" id='allFilter'>Todos</p>
-              <p class="cards__filter-option" id='pendingFilter'>Pendiente</p>
-              <p class="cards__filter-option" id='inProgressFilter'>En Proceso</p>
-              <p class="cards__filter-option" id='completedFilter'>Completado</p>
-            </div>
-            ${
-              this.state.tasksSlice.tasks.length === 0
-                ? `<p class="cards__empty-message">Nada que mostrar</p>`
-                : ""
-            }
-            <ul class="cards__list" id="tasksList">
-            </ul>
-          </section>
+    this.state.tasksSlice.tasks
+      .sort((a, b) => b.dueDate - a.dueDate)
+      .forEach((task) => {
+        const listElement = document.createElement("li");
+        listElement.classList.add("task-card__list-item");
+        listElement.id = task.id;
 
-           <section class="cards__widget">
-            <h2 class="cards__title">Próximos eventos</h2>
-            <ul class="cards__list" id="eventsList">
-            </ul>
-          </section>
-        </div>`;
-
-    this.state.tasksSlice.tasks.forEach((task) => {
-      const listElement = document.createElement("li");
-      listElement.classList.add("task-card__list-item");
-      listElement.id = task.id;
-
-      listElement.innerHTML = `<div class="task-card__container">
+        listElement.innerHTML = `<div class="task-card__container">
                   <p class="task-card__expiration">${this.formatDate(
                     task.dueDate
                   )}</p>
@@ -195,20 +103,20 @@ const app = {
                     task.description
                   }</p> -->
                   <p class="task-card__state">${task.status}</p>
-                  <input type="checkbox" class="task-card__checkbox" id='checkedTaskBox'>
                 </div>`;
 
-      listElement.addEventListener("click", (e) => {
-        this.state.tasksSlice.currentTask = this.state.tasksSlice.tasks.filter(
-          (task) => task.id === e.currentTarget.id
-        )[0];
-        this.navigate("newTask");
-      });
+        listElement.addEventListener("click", (e) => {
+          this.state.tasksSlice.currentTask =
+            this.state.tasksSlice.tasks.filter(
+              (task) => task.id === e.currentTarget.id
+            )[0];
+          this.navigate("newTask");
+        });
 
-      document
-        .querySelector(`#${this.elements.tasksList.id}`)
-        .append(listElement);
-    });
+        document
+          .querySelector(`#${this.elements.tasksList.id}`)
+          .append(listElement);
+      });
 
     this.state.eventsSlice.events
       .sort((a, b) => b.date - a.date)
@@ -217,23 +125,29 @@ const app = {
         listElement.classList.add("event-card__list-container");
         listElement.id = event.id;
 
-        listElement.innerHTML = `<div class="event__weather-img">
-
-      ${
-        event.weatherData === null
-          ? ""
-          : `<p class="event__min">Min ${
-              event.weatherData && event.weatherData.temp_min
-            } °F</p>
-                  <p class="event__max">Max ${
-                    event.weatherData && event.weatherData.temp_max
-                  } °F</p>`
-      }
+        listElement.innerHTML = `<div class="event__weather-img" style="background-image: url(https://openweathermap.org/img/wn/${
+          event.weatherData.icon
+        }@2x.png)">
                 </div>
                 <div class="event__info-container">
                   <h3 class="event__title">${event.title}</h3>
-                  <p class="event__date">${this.formatDate(event.date)}</p>
+                  <div class="event__time-and-date">
+                  <p class="event__date">${this.formatDate(
+                    event.date
+                  )} <span>|</span> </p>
                   <p class="event__time">${event.time}</p>
+                  </div>
+                  
+                  ${
+                    event.weatherData === null
+                      ? ""
+                      : `<div class="event__weather-data"><p class="event__min">Min ${
+                          event.weatherData && event.weatherData.temp_min
+                        } °C</p>
+                  <p class="event__max">Max ${
+                    event.weatherData && event.weatherData.temp_max
+                  } °C</p> </div>`
+                  }
                 </div>`;
 
         listElement.addEventListener("click", (e) => {
@@ -279,54 +193,20 @@ const app = {
           this.renderDashboard();
         });
       });
+
+    const backBtn = document.querySelector("#backBtn");
+    backBtn.addEventListener("click", () => {
+      this.navigate("nav");
+    });
   },
 
   renderTaskForm() {
-    this.elements.main.element.innerHTML = `<section id="section-2" class="dashboard__section">
-        <div class="dashboard__top-navigator">
-          <div class="dashboard__top-left">
-            <p>Back Button</p>
-            <div class="dashboard__top-left-page-title">
-              <p>✍🏼</p>
-              <p>Nueva task</p>
-            </div>
-          </div>
-        </div>
-
-        <header class="new-task__header">
-<p class="dashboard__icon">✍🏼</p>
-        </header>
-
-        <div class="dashboard__section-content">
-          <form class="new-task__form" action="submit" id="addTaskForm">
-            <textarea name='title' rows="1" class="new-task__input-title" placeholder="Nueva task"></textarea>
-            <textarea name='description' rows="3" class="new-task__input-description" id="new-task-description"
-              placeholder="Descripcción"></textarea>
-
-            <div class="inputs-container">
-              <label class="new-task__label" for="newTaskDate">Vencimiento</label>
-              <input name='dueDate' class="new-task__input-date" id="newTaskDate" type="date">
-            </div>
-
-            <div class="inputs-container"><label class="new-task__label" for="newTaskSelect">Estatus</label>
-              <select name='status' class="new-task__select" id="newTaskSelect">
-                <option value="pendiente">Pendiente</option>
-                <option value="en proceso">En proceso</option>
-                <option value="completado">Completado</option>
-              </select>
-            </div>
-
-            <button type='submit' class="new-task__submit-button">${
-              this.state.tasksSlice.currentTask
-                ? "Modificar task"
-                : "Agregar task"
-            }</button>
-
-          </form>
-        </div>
-      </section>`;
+    this.elements.main.element.innerHTML = taskForm(
+      this.state.tasksSlice.currentTask !== null
+    );
 
     const form = document.querySelector("#addTaskForm");
+    const taskCancelBtn = document.querySelector("#taskCancelBtn");
 
     if (this.state.tasksSlice.currentTask) {
       for (let i = 0; i < form.elements.length; i++) {
@@ -342,55 +222,36 @@ const app = {
 
       if (this.state.tasksSlice.currentTask) {
         this.updateTask(e.target);
-        htmlActions.showSimpleDialog("Task modificada con éxito");
       } else {
         this.createTask(e.target);
-        htmlActions.showSimpleDialog("Task añadida con éxito");
       }
     });
+
+    taskCancelBtn.addEventListener("click", () => {
+      this.state.tasksSlice.currentTask = null;
+      this.navigate("dashboard");
+    });
+
+    const taskBackBtn = document.querySelector("#taskBackBtn");
+    taskBackBtn.addEventListener("click", () => {
+      this.navigate("nav");
+    });
+
+    if (this.state.tasksSlice.currentTask !== null) {
+      const deleteTaskBtn = document.querySelector("#taskDeleteBtn");
+      deleteTaskBtn.addEventListener("click", () => {
+        this.deleteTask(this.state.tasksSlice.currentTask.id);
+      });
+    }
   },
 
   renderEventForm() {
-    this.elements.main.element.innerHTML = `<section id="section-4" class="dashboard__section">
-        <div class="dashboard__top-navigator">
-          <div class="dashboard__top-left">
-            <p>Back Button</p>
-            <div class="dashboard__top-left-page-title">
-              <p>📆</p>
-              <p>Nuevo evento</p>
-            </div>
-          </div>
-        </div>
-
-        <header class="new-task__header">
-          <p class="dashboard__icon">📆</p>
-        </header>
-
-        <div class="dashboard__section-content">
-          <form class="new-event__form" action="submit" id="addEventForm">
-            <textarea name="title" rows="1" class="new-task__input-title" placeholder="Nuevo evento"></textarea>
-            <div class="inputs-container">
-              <label class="new-event__label" for="newEventDate">Fecha</label>
-              <input name="date" class="new-event__input-date" id="newEventDate" type="date">
-            </div>
-            <div class="inputs-container">
-              <label class="new-event__label" for="newEventTime">Hora</label>
-              <input name="time" class="new-event__input-date" id="newEventTime" type="time">
-            </div>
-            <textarea name="details" rows="3" class="new-event__input-details" id="new-event-details"
-              placeholder="Detalles relevantes"></textarea>
-            <button class="new-event__submit-button">${
-              this.state.eventsSlice.currentEvent
-                ? "Modificar evento"
-                : "Añadir evento"
-            }</button>
-
-          </form>
-        </div>
-
-      </section>`;
+    this.elements.main.element.innerHTML = eventForm(
+      this.state.eventsSlice.currentEvent !== null
+    );
 
     const form = document.querySelector("#addEventForm");
+    const eventCancelBtn = document.querySelector("#eventCancelBtn");
 
     if (this.state.eventsSlice.currentEvent) {
       for (let i = 0; i < form.elements.length; i++) {
@@ -406,12 +267,28 @@ const app = {
 
       if (this.state.eventsSlice.currentEvent) {
         this.updateEvent(e.target);
-        htmlActions.showSimpleDialog("Evento modificado con éxito");
       } else {
         this.createEvent(e.target);
-        htmlActions.showSimpleDialog("Evento modificado con éxito");
       }
     });
+
+    eventCancelBtn.addEventListener("click", () => {
+      this.state.eventsSlice.currentEvent = null;
+      this.navigate("dashboard");
+    });
+
+    const eventBackBtn = document.querySelector("#eventBackBtn");
+    eventBackBtn.addEventListener("click", () => {
+      this.navigate("nav");
+    });
+
+    if (this.state.eventsSlice.currentEvent !== null) {
+      console.log("Botón de eliminar activado");
+      const eventDeleteBtn = document.querySelector("#eventDeleteBtn");
+      eventDeleteBtn.addEventListener("click", () => {
+        this.deleteEvent(this.state.eventsSlice.currentEvent.id);
+      });
+    }
   },
 
   async renderNews() {
@@ -420,7 +297,7 @@ const app = {
     this.elements.main.element.innerHTML = `<section id="section-3" class="dashboard__section">
         <div class="dashboard__top-navigator">
           <div class="dashboard__top-left">
-            <p>Back Button</p>
+            <p class="dashboard__top-back" id="newsBackBtn" >Back</p>
             <div class="dashboard__top-left-page-title">
               <p>📰</p>
               <p>Noticias</p>
@@ -489,6 +366,13 @@ const app = {
 
         newsListElement.append(liItem);
       });
+
+    const newsbackBtn = document.querySelector("#newsBackBtn");
+
+    newsbackBtn.addEventListener("click", () => {
+      console.log("clck");
+      this.navigate("nav");
+    });
   },
 
   renderLoading() {
@@ -496,6 +380,10 @@ const app = {
         <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/YouTube_loading_symbol_3_%28transparent%29.gif"
           alt="" srcset="">
       </section>`;
+  },
+
+  renderMobileNav() {
+    this.elements.main.element.innerHTML = mobileNav();
   },
 
   createTask(form) {
@@ -507,11 +395,24 @@ const app = {
       status: form.status.value,
     };
 
-    //Aquí puedo hacer las validaciones con mensaje de error
+    let missingValues = [];
 
-    this.state.tasksSlice.tasks.push(newTask);
-    this.saveToLs();
-    this.navigate("dashboard");
+    for (let prop in newTask) {
+      if (!newTask[prop]) {
+        missingValues.push(prop);
+      }
+    }
+
+    if (missingValues.length > 0) {
+      htmlActions.showSimpleDialog(
+        `Faltan campos obligatorios: ${missingValues.join(", ")}`
+      );
+    } else {
+      this.state.tasksSlice.tasks.push(newTask);
+      this.saveToLs();
+      this.navigate("dashboard");
+      htmlActions.showSimpleDialog("Task creada con éxito");
+    }
   },
 
   async createEvent(form) {
@@ -524,9 +425,24 @@ const app = {
       weatherData: await this.fetchWeather(form.date.value),
     };
 
-    this.state.eventsSlice.events.push(newEvent);
-    this.saveToLs();
-    this.navigate("dashboard");
+    let missingValues = [];
+
+    for (let prop in newEvent) {
+      if (!newEvent[prop]) {
+        missingValues.push(prop);
+      }
+    }
+
+    if (missingValues.length > 0) {
+      htmlActions.showSimpleDialog(
+        `Faltan campos obligatorios: ${missingValues.join(", ")}`
+      );
+    } else {
+      this.state.eventsSlice.events.push(newEvent);
+      this.saveToLs();
+      this.navigate("dashboard");
+      htmlActions.showSimpleDialog("Evento creado con éxito");
+    }
   },
 
   updateTask(form) {
@@ -537,13 +453,29 @@ const app = {
       dueDate: form.dueDate.value,
       status: form.status.value,
     };
-    this.state.tasksSlice.tasks = this.state.tasksSlice.tasks.map((task) =>
-      task.id === updatedTask.id ? updatedTask : task
-    );
 
-    this.state.tasksSlice.currentTask = null;
-    this.saveToLs();
-    this.navigate("dashboard");
+    let missingValues = [];
+
+    for (let prop in updatedTask) {
+      if (!updatedTask[prop]) {
+        missingValues.push(prop);
+      }
+    }
+
+    if (missingValues.length > 0) {
+      htmlActions.showSimpleDialog(
+        `Faltan campos obligatorios: ${missingValues.join(", ")}`
+      );
+    } else {
+      this.state.tasksSlice.tasks = this.state.tasksSlice.tasks.map((task) =>
+        task.id === updatedTask.id ? updatedTask : task
+      );
+
+      this.state.tasksSlice.currentTask = null;
+      this.saveToLs();
+      this.navigate("dashboard");
+      htmlActions.showSimpleDialog("Task modificada con éxito");
+    }
   },
 
   async updateEvent(form) {
@@ -555,14 +487,51 @@ const app = {
       details: form.details.value,
       weatherData: await this.fetchWeather(form.date.value),
     };
-    this.state.eventsSlice.events = this.state.eventsSlice.events.map((event) =>
-      event.id === updatedEvent.id ? updatedEvent : event
+    let missingValues = [];
+
+    for (let prop in updatedEvent) {
+      if (!updatedEvent[prop]) {
+        missingValues.push(prop);
+      }
+    }
+
+    if (missingValues.length > 0) {
+      htmlActions.showSimpleDialog(
+        `Faltan campos obligatorios: ${missingValues.join(", ")}`
+      );
+    } else {
+      this.state.eventsSlice.events = this.state.eventsSlice.events.map(
+        (event) => (event.id === updatedEvent.id ? updatedEvent : event)
+      );
+      this.state.eventsSlice.currentEvent = null;
+      this.saveToLs();
+      this.navigate("dashboard");
+      htmlActions.showSimpleDialog("Evento modificado con éxito");
+    }
+  },
+
+  deleteTask(taskId) {
+    const filteredTasks = this.state.tasksSlice.tasks.filter(
+      (task) => task.id !== taskId
     );
 
-    this.state.eventsSlice.currentEvent = null;
+    this.state.tasksSlice.tasks = filteredTasks;
 
     this.saveToLs();
     this.navigate("dashboard");
+    htmlActions.showSimpleDialog("Task eliminada con éxito");
+  },
+
+  deleteEvent(eventId) {
+    const filteredEvents = this.state.eventsSlice.events.filter(
+      (event) => event.id !== eventId
+    );
+
+    this.state.eventsSlice.events = filteredEvents;
+
+    this.saveToLs();
+    this.navigate("dashboard");
+    htmlActions.showSimpleDialog("Evento eliminado con éxito");
   },
 
   async fetchNews(topic = "code") {
@@ -580,20 +549,36 @@ const app = {
 
   async fetchWeather(date) {
     try {
-      const eventDate = new Date(date);
+      const eventDate = new Date(date); // Fecha que llega del formulario
       const timestamp = Math.floor(eventDate.getTime() / 1000);
 
-      const newResponse = await fetch(
+      const response = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?lat=40.4165&lon=-3.70256&appid=${this.state.weatherSlice.openWeatherApiKey}&units=metric&lang=es`
       );
 
-      const { list } = await newResponse.json();
+      const { list } = await response.json();
 
-      const data = list.filter((data) => data.dt === timestamp);
+      let closestData = list[0];
+      let closestDiff = Math.abs(list[0].dt - timestamp);
 
-      return data.length === 1 ? data[0].main : null;
+      for (const item of list) {
+        const diff = Math.abs(item.dt - timestamp);
+        if (diff < closestDiff) {
+          closestDiff = diff;
+          closestData = item;
+        }
+      }
+
+      return {
+        temp: closestData.main.temp,
+        temp_min: closestData.main.temp_min,
+        temp_max: closestData.main.temp_max,
+        description: closestData.weather[0].description,
+        icon: closestData.weather[0].icon,
+      };
     } catch (error) {
-      htmlActions.showSimpleDialog(error.message);
+      htmlActions.showSimpleDialog("Error al obtener los datos del clima");
+      return null;
     }
   },
 
