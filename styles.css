@@ -186,6 +186,11 @@ body {
   background-color: #f4f4f4;
   border-radius: 0.5rem;
   position: relative;
+  cursor: pointer;
+}
+
+.event__info-container {
+  padding: 1rem;
 }
 
 .task-card__container {
@@ -233,6 +238,12 @@ body {
   border-color: #ececec;
 }
 
+.cards__empty-message {
+  font-size: 13px;
+  padding-inline: 1rem;
+  color: #393939;
+}
+
 .task-card__expiration {
   text-align: end;
   font-size: 12px;
@@ -242,38 +253,16 @@ body {
 .task-card__description {
 }
 
-.task-card__state--completed {
-  background-color: rgb(161, 236, 199);
-  color: rgb(48, 73, 61);
+.task-card__state {
+  background-color: #9bf0ff;
+  color: #334d51;
   padding-block: 0.5rem;
   padding-inline: 1rem;
   border-radius: 100px;
   width: fit-content;
   align-self: center;
   font-size: 7px;
-}
-
-.task-card__state--pending {
-  background-color: rgb(236, 161, 161);
-  color: rgb(73, 48, 48);
-  padding-block: 0.5rem;
-  padding-inline: 1rem;
-  border-radius: 100px;
-  width: fit-content;
-  align-self: center;
-  font-size: 7px;
-}
-
-.task-card__state--progress {
-  background-color: rgb(255, 250, 180);
-  border: 1.5px solid rgb(220, 214, 139);
-  color: rgb(220, 214, 139);
-  padding-block: 0.5rem;
-  padding-inline: 1rem;
-  border-radius: 100px;
-  width: fit-content;
-  align-self: center;
-  font-size: 7px;
+  text-transform: capitalize;
 }
 
 #section-1 {
@@ -281,6 +270,10 @@ body {
 
 #section-2 {
   display: block;
+}
+
+#loading {
+  display: none;
 }
 
 .dashboard__section-content {
@@ -458,16 +451,38 @@ body {
 .event-card__list-container {
   display: flex;
   background-color: #f4f4f4;
-  width: 250px;
+  min-width: 270px;
   border-radius: 0.5rem;
+  cursor: pointer;
 }
 
 .event__weather-img {
-  background-color: red;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #9bf0ff;
   height: 5rem;
   width: 5rem;
   border-top-left-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
+}
+
+.event__min,
+.event__max {
+  font-size: 8px;
+}
+
+.event__title {
+  max-width: 10rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event__date,
+.event__time {
+  font-size: 12px;
 }
 
 .loading__section {

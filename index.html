@@ -32,7 +32,12 @@
     </aside>
     <main class="dashboard__main" id="mainLocator">
 
-      <!-- <section id="section-4" class="dashboard__section">
+      <section class="loading__section" id="loading">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/YouTube_loading_symbol_3_%28transparent%29.gif"
+          alt="" srcset="">
+      </section>
+
+      <section id="section-4" class="dashboard__section">
         <div class="dashboard__top-navigator">
           <div class="dashboard__top-left">
             <p>Back Button</p>
@@ -67,10 +72,7 @@
 
       </section>
 
-      <section class="loading__section">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/YouTube_loading_symbol_3_%28transparent%29.gif"
-          alt="" srcset="">
-      </section>
+
 
       <section id="section-3" class="dashboard__section">
         <div class="dashboard__top-navigator">
@@ -159,7 +161,7 @@
           </section>
         </div>
 
-      </section> -->
+      </section>
 
       <section id="section-1" class="dashboard__section">
         <div class="dashboard__top-navigator">
@@ -223,14 +225,16 @@
 
           <section class="cards__widget">
             <h2 class="cards__title">Eventos</h2>
-            <ul class="cards__list">
+            <ul class="cards__list" id="eventsList">
               <li class="event-card__list-container">
                 <div class="event__weather-img">
-                  <p>Min: 30</p>
-                  <p>Max: 40</p>
+                  <p class="event__min">Min 30</p>
+                  <p class="event__max">Max 40</p>
                 </div>
                 <div class="event__info-container">
-                  <h3>Título del evento</h3>
+                  <h3 class="event__title">Título del evento</h3>
+                  <p class="event__date">Mar 03 2025</p>
+                  <p class="event__time">14:51</p>
                 </div>
               </li>
             </ul>

@@ -1,7 +1,4 @@
 const htmlActions = {
-  saveToLS: (key, value) => {
-    localStorage.setItem(key, JSON.stringify(value));
-  },
   getById: (id) => document.getElementById(id),
   refreshElement: (elementId, callback) => {
     const element = htmlActions.getById(elementId);
@@ -9,22 +6,14 @@ const htmlActions = {
     callback();
   },
   showElement: (elementId) => {
-    htmlActions.getById(elementId).style.display = "Block";
+    htmlActions.getById(elementId).style.display = "block";
   },
   hideElement: (elementId) => {
-    htmlActions.getById(elementId).style.display = "None";
+    htmlActions.getById(elementId).style.display = "none";
   },
-  clearFormElement: (elementId) => {
-    htmlActions.getById(elementId).value = "";
-  },
-  fillFormElement: (formElementId, value) => {
-    htmlActions.getById(formElementId).value = value;
-  },
+
   showSimpleDialog: (text) => {
     alert(text);
-  },
-  addElementInside: (parentId, elementToAdd) => {
-    htmlActions.getById(parentId).prepend(elementToAdd);
   },
 };
 
@@ -107,6 +96,10 @@ const app = {
       id: "tasksList",
       element: htmlActions.getById("tasksList"),
     },
+    eventsList: {
+      id: "eventsList",
+      element: htmlActions.getById("eventsList"),
+    },
     addTaskForm: {
       id: "addTaskForm",
       element: htmlActions.getById("addTaskForm"),
@@ -169,10 +162,21 @@ const app = {
             <div class="cards__filter-container">
               <p class="cards__filter-option" id='allFilter'>Todos</p>
               <p class="cards__filter-option" id='pendingFilter'>Pendiente</p>
-              <p class="cards__filter-option" id='inProgressFilter'>En proceso</p>
+              <p class="cards__filter-option" id='inProgressFilter'>En Proceso</p>
               <p class="cards__filter-option" id='completedFilter'>Completado</p>
             </div>
+            ${
+              this.state.tasksSlice.tasks.length === 0
+                ? `<p class="cards__empty-message">Nada que mostrar</p>`
+                : ""
+            }
             <ul class="cards__list" id="tasksList">
+            </ul>
+          </section>
+
+           <section class="cards__widget">
+            <h2 class="cards__title">Próximos eventos</h2>
+            <ul class="cards__list" id="eventsList">
             </ul>
           </section>
         </div>`;
@@ -183,18 +187,14 @@ const app = {
       listElement.id = task.id;
 
       listElement.innerHTML = `<div class="task-card__container">
-                  <p class="task-card__expiration">${new Date(
+                  <p class="task-card__expiration">${this.formatDate(
                     task.dueDate
-                  ).toLocaleString("es-Es", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}</p>
+                  )}</p>
                   <h3 class="task-card__title">${task.title}</h3>
                   <!-- <p class="task-card__description">${
                     task.description
                   }</p> -->
-                  <p class="task-card__state--completed">${task.status}</p>
+                  <p class="task-card__state">${task.status}</p>
                   <input type="checkbox" class="task-card__checkbox" id='checkedTaskBox'>
                 </div>`;
 
@@ -210,12 +210,53 @@ const app = {
         .append(listElement);
     });
 
+    this.state.eventsSlice.events
+      .sort((a, b) => b.date - a.date)
+      .forEach((event) => {
+        const listElement = document.createElement("li");
+        listElement.classList.add("event-card__list-container");
+        listElement.id = event.id;
+
+        listElement.innerHTML = `<div class="event__weather-img">
+
+      ${
+        event.weatherData === null
+          ? ""
+          : `<p class="event__min">Min ${
+              event.weatherData && event.weatherData.temp_min
+            } °F</p>
+                  <p class="event__max">Max ${
+                    event.weatherData && event.weatherData.temp_max
+                  } °F</p>`
+      }
+                </div>
+                <div class="event__info-container">
+                  <h3 class="event__title">${event.title}</h3>
+                  <p class="event__date">${this.formatDate(event.date)}</p>
+                  <p class="event__time">${event.time}</p>
+                </div>`;
+
+        listElement.addEventListener("click", (e) => {
+          this.state.eventsSlice.currentEvent =
+            this.state.eventsSlice.events.find(
+              (event) => event.id === e.currentTarget.id
+            );
+          console.log(this.state.eventsSlice.currentEvent);
+          this.navigate("newEvent");
+        });
+
+        document
+          .querySelector(`#${this.elements.eventsList.id}`)
+          .append(listElement);
+      });
+
     document
       .querySelectorAll(".cards__filter-option")
       .forEach((filterButton) => {
         const filterButtonElement = document.querySelector(
           `#${filterButton.id}`
         );
+
         if (
           this.state.tasksSlice.filter.toLowerCase() ===
           filterButton.textContent.toLowerCase()
@@ -253,7 +294,7 @@ const app = {
         </div>
 
         <header class="new-task__header">
-
+<p class="dashboard__icon">✍🏼</p>
         </header>
 
         <div class="dashboard__section-content">
@@ -301,8 +342,10 @@ const app = {
 
       if (this.state.tasksSlice.currentTask) {
         this.updateTask(e.target);
+        htmlActions.showSimpleDialog("Task modificada con éxito");
       } else {
         this.createTask(e.target);
+        htmlActions.showSimpleDialog("Task añadida con éxito");
       }
     });
   },
@@ -349,13 +392,24 @@ const app = {
 
     const form = document.querySelector("#addEventForm");
 
+    if (this.state.eventsSlice.currentEvent) {
+      for (let i = 0; i < form.elements.length; i++) {
+        if (form[i] instanceof HTMLButtonElement) {
+          continue;
+        }
+        form[i].value = this.state.eventsSlice.currentEvent[form[i].name];
+      }
+    }
+
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
       if (this.state.eventsSlice.currentEvent) {
-        console.log("Es Update");
+        this.updateEvent(e.target);
+        htmlActions.showSimpleDialog("Evento modificado con éxito");
       } else {
         this.createEvent(e.target);
+        htmlActions.showSimpleDialog("Evento modificado con éxito");
       }
     });
   },
@@ -486,6 +540,27 @@ const app = {
     this.state.tasksSlice.tasks = this.state.tasksSlice.tasks.map((task) =>
       task.id === updatedTask.id ? updatedTask : task
     );
+
+    this.state.tasksSlice.currentTask = null;
+    this.saveToLs();
+    this.navigate("dashboard");
+  },
+
+  async updateEvent(form) {
+    const updatedEvent = {
+      id: this.state.eventsSlice.currentEvent.id,
+      title: form.title.value,
+      date: form.date.value,
+      time: form.time.value,
+      details: form.details.value,
+      weatherData: await this.fetchWeather(form.date.value),
+    };
+    this.state.eventsSlice.events = this.state.eventsSlice.events.map((event) =>
+      event.id === updatedEvent.id ? updatedEvent : event
+    );
+
+    this.state.eventsSlice.currentEvent = null;
+
     this.saveToLs();
     this.navigate("dashboard");
   },
@@ -499,7 +574,7 @@ const app = {
 
       this.state.newsSlice.news = articles;
     } catch (error) {
-      console.log(error);
+      htmlActions.showSimpleDialog(error.message);
     }
   },
 
@@ -507,26 +582,27 @@ const app = {
     try {
       const eventDate = new Date(date);
       const timestamp = Math.floor(eventDate.getTime() / 1000);
-      // const response = await fetch(
-      //   `https://api.openweathermap.org/data/2.5/weather?lat=40.4165&lon=-3.70256&appid=${this.state.weatherSlice.openWeatherApiKey}&units=metric&lang=es`
-      // );
 
       const newResponse = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?lat=40.4165&lon=-3.70256&appid=${this.state.weatherSlice.openWeatherApiKey}&units=metric&lang=es`
       );
 
-      // const data = await response.json();
-
       const { list } = await newResponse.json();
 
       const data = list.filter((data) => data.dt === timestamp);
 
-      console.log({ timestamp, list, data });
-
-      return data.length === 1 ? data[0].main : undefined;
+      return data.length === 1 ? data[0].main : null;
     } catch (error) {
-      console.log(error);
+      htmlActions.showSimpleDialog(error.message);
     }
+  },
+
+  formatDate(date) {
+    return new Date(date).toLocaleString("es-Es", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
   },
 
   navigate(route) {
@@ -543,6 +619,9 @@ const app = {
   getFromLs() {
     this.state.tasksSlice.tasks =
       JSON.parse(localStorage.getItem("tasks")) || [];
+
+    this.state.eventsSlice.events =
+      JSON.parse(localStorage.getItem("events")) || [];
   },
 };
 
