@@ -34,13 +34,11 @@ export function eventForm(isUpdate) {
             }</button>
              ${
                isUpdate
-                 ? `<button type='button' id="eventDeleteBtn" class="new-task__delete-button">Eliminar task</button>`
+                 ? `<button type='button' id="eventDeleteBtn" class="new-task__delete-button">Eliminar evento</button>`
                  : ""
              }
             <button type='button' id="eventCancelBtn" class="new-task__submit-button">Cancelar</button>
             </div>
-
-
           </form>
         </div>
 

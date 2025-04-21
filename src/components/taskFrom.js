@@ -36,13 +36,11 @@ export function taskForm(isUpdate) {
             <button type='submit' class="new-task__submit-button">${
               isUpdate ? "Modificar task" : "Agregar task"
             }</button>
-
             ${
               isUpdate
                 ? `<button type='button' id="taskDeleteBtn" class="new-task__delete-button">Eliminar task</button>`
                 : ""
             }
-
             <button type='button' id="taskCancelBtn" class="new-task__submit-button">Cancelar</button>
             </div>
           </form>

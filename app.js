@@ -73,7 +73,12 @@ const app = {
         this.renderEventForm();
         break;
       case "nav":
-        this.renderMobileNav();
+        console.log(window.outerWidth);
+        if (Number(window.outerWidth) < 766) {
+          this.renderMobileNav();
+        } else {
+          this.navigate("dashboard");
+        }
         break;
       default:
         this.renderDashboard();
@@ -88,7 +93,7 @@ const app = {
     );
 
     this.state.tasksSlice.tasks
-      .sort((a, b) => b.dueDate - a.dueDate)
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
       .forEach((task) => {
         const listElement = document.createElement("li");
         listElement.classList.add("task-card__list-item");
@@ -119,7 +124,7 @@ const app = {
       });
 
     this.state.eventsSlice.events
-      .sort((a, b) => b.date - a.date)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
       .forEach((event) => {
         const listElement = document.createElement("li");
         listElement.classList.add("event-card__list-container");
@@ -516,7 +521,7 @@ const app = {
     );
 
     this.state.tasksSlice.tasks = filteredTasks;
-
+    this.state.tasksSlice.currentTask = null;
     this.saveToLs();
     this.navigate("dashboard");
     htmlActions.showSimpleDialog("Task eliminada con éxito");
@@ -528,7 +533,7 @@ const app = {
     );
 
     this.state.eventsSlice.events = filteredEvents;
-
+    this.state.eventsSlice.currentEvent = null;
     this.saveToLs();
     this.navigate("dashboard");
     htmlActions.showSimpleDialog("Evento eliminado con éxito");
