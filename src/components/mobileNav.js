@@ -1,18 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Devotion | Task planner</title>
-  <link rel="shortcut icon" href="./images/logo.png" type="image/x-icon">
-  <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./app.js" defer></script>
-</head>
-
-<body>
-  <div class="dashboard" id="dashboard">
-    <aside class="dashboard__aside">
+export function mobileNav() {
+  return `<aside class="dashboard__aside--mobile">
       <div class="dashboard__logo-container">
         <img class="dashboard__logo" src="./images/logo.png" alt="Un logotipo en forma de D con la palabra Devotion">
         <h1 class="dashboard__logo-title">Devotion</h1>
@@ -31,19 +18,5 @@
         <p class="dashboard__profile-picture">AI</p>
         <p class="dashboard__profile-name">Alejandro Irastorza</p>
       </div>
-    </aside>
-    <main class="dashboard__main" id="mainLocator">
-
-      <section class="loading__section" id="loading">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/YouTube_loading_symbol_3_%28transparent%29.gif"
-          alt="" srcset="">
-      </section>
-
-    </main>
-  </div>
-
-
-
-</body>
-
-</html>
+    </aside>`;
+}
