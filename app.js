@@ -1,20 +1,127 @@
+import { asideMenu } from "./src/components/asideMenu.js";
 import { dashboard } from "./src/components/dashboard.js";
 import { eventForm } from "./src/components/eventForm.js";
+import { loginSection } from "./src/components/login.js";
 import { mobileNav } from "./src/components/mobileNav.js";
+import { registerForm } from "./src/components/registerForm.js";
 import { taskForm } from "./src/components/taskFrom.js";
 import { htmlActions } from "./src/utils/htmlActions.js";
 
 const app = {
   state: {
+    userSlice: {
+      token: null,
+      user: null,
+    },
     tasksSlice: {
-      tasks: [],
+      tasks: null,
       currentTask: null,
       filter: "Todos",
+      async loadTasks() {
+        const tasksResponse = await app.state.serverSlice.tasksRepo.getTasks();
+        this.tasks = tasksResponse.tasks;
+      },
+      async createTask(form) {
+        const newTask = {
+          id: crypto.randomUUID(),
+          title: form.title.value,
+          description: form.description.value,
+          dueDate: form.dueDate.value,
+          status: form.status.value,
+        };
+
+        const taskCreated = await app.state.serverSlice.tasksRepo.createTask(
+          newTask
+        );
+
+        if (taskCreated.success === "ok") {
+          await this.loadTasks();
+          app.navigate("dashboard");
+          htmlActions.showSimpleDialog("Task creada con éxito");
+        } else {
+          htmlActions.showSimpleDialog("Hubo un error al crear la task.");
+        }
+      },
+      async updateTask(updatedTask) {
+        const updateTaskResponse =
+          await app.state.serverSlice.tasksRepo.updateTask(
+            this.currentTask._id,
+            updatedTask
+          );
+
+        if (updateTaskResponse.success === "ok") {
+          await this.loadTasks();
+          app.navigate("dashboard");
+        }
+      },
+      async deleteTask(taskId) {
+        const deleteTaskResponse =
+          await app.state.serverSlice.tasksRepo.deleteTask(taskId);
+
+        if (deleteTaskResponse.success === "ok") {
+          await this.loadTasks();
+          app.navigate("dashboard");
+        }
+      },
     },
     eventsSlice: {
-      events: [],
+      events: null,
       currentEvent: null,
       currentCity: null,
+      async loadEvents() {
+        const eventsResponse =
+          await app.state.serverSlice.eventsRepo.getEvents();
+        this.events = eventsResponse.events;
+      },
+      async createEvent(newEvent) {
+        let missingValues = [];
+
+        for (let prop in newEvent) {
+          if (!newEvent[prop]) {
+            missingValues.push(prop);
+          }
+        }
+
+        if (missingValues.length > 0) {
+          htmlActions.showSimpleDialog(
+            `Faltan campos obligatorios: ${missingValues.join(", ")}`
+          );
+        } else {
+          const newEventResponse =
+            await app.state.serverSlice.eventsRepo.createEvent(newEvent);
+
+          if (newEventResponse.success === "ok") {
+            await this.loadEvents();
+            app.navigate("dashboard");
+            htmlActions.showSimpleDialog("Evento creado con éxito");
+          }
+        }
+      },
+
+      async updateEvent(updatedEvent) {
+        const updateEventResponse =
+          await app.state.serverSlice.eventsRepo.updateEvent(
+            this.currentEvent._id,
+            updatedEvent
+          );
+
+        console.log(updateEventResponse);
+
+        if (updateEventResponse.success === "ok") {
+          await this.loadEvents();
+          app.navigate("dashboard");
+        }
+      },
+
+      async deleteEvent(eventId) {
+        const deleteEventResponse =
+          await app.state.serverSlice.eventsRepo.deleteEvent(eventId);
+
+        if (deleteEventResponse.success === "ok") {
+          await this.loadEvents();
+          app.navigate("dashboard");
+        }
+      },
     },
     newsSlice: {
       apikey: "61e3f2de767349ca9252ed0abf4d3215",
@@ -23,6 +130,169 @@ const app = {
     weatherSlice: {
       opencageApiKey: "c54de52228dc4c289948de575b105fd3",
       openWeatherApiKey: "96cb6093c994e234f88e5034dd735bea",
+    },
+    serverSlice: {
+      url: "http://localhost:3500",
+
+      tasksRepo: {
+        async getTasks() {
+          try {
+            const result = await fetch(`${app.state.serverSlice.url}/tasks`, {
+              headers: {
+                Authorization: `Bearer ${app.state.userSlice.token}`,
+              },
+            });
+            return await result.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+        async createTask(task) {
+          try {
+            const url = `${app.state.serverSlice.url}/tasks/create`;
+            const result = await fetch(url, {
+              method: "POST",
+              body: JSON.stringify(task),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${app.state.userSlice.token}`,
+              },
+            });
+            return await result.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+
+        async updateTask(taskId, task) {
+          try {
+            const url = `${app.state.serverSlice.url}/tasks/update/${taskId}`;
+            const result = await fetch(url, {
+              method: "PATCH",
+              body: JSON.stringify(task),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${app.state.userSlice.token}`,
+              },
+            });
+            return await result.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+
+        async deleteTask(taskId) {
+          try {
+            const url = `${app.state.serverSlice.url}/tasks/delete/${taskId}`;
+            const result = await fetch(url, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${app.state.userSlice.token}`,
+              },
+            });
+            return await result.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+      },
+
+      eventsRepo: {
+        async getEvents() {
+          try {
+            const result = await fetch(`${app.state.serverSlice.url}/events`, {
+              headers: { Authorization: `Bearer ${app.state.userSlice.token}` },
+            });
+            return await result.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+        async createEvent(event) {
+          try {
+            const url = `${app.state.serverSlice.url}/events/create`;
+            const result = await fetch(url, {
+              method: "POST",
+              body: JSON.stringify(event),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${app.state.userSlice.token}`,
+              },
+            });
+            return await result.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+
+        async updateEvent(eventId, event) {
+          try {
+            const url = `${app.state.serverSlice.url}/events/update/${eventId}`;
+            const result = await fetch(url, {
+              method: "PATCH",
+              body: JSON.stringify(event),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${app.state.userSlice.token}`,
+              },
+            });
+            return await result.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+
+        async deleteEvent(eventId) {
+          try {
+            const url = `${app.state.serverSlice.url}/events/delete/${eventId}`;
+            const result = await fetch(url, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${app.state.userSlice.token}`,
+              },
+            });
+            return await result.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+      },
+
+      usersRepo: {
+        async login(loginData) {
+          try {
+            const url = `${app.state.serverSlice.url}/users/login`;
+            const loginResponse = await fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(loginData),
+            });
+            return await loginResponse.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+
+        async register(registerData) {
+          try {
+            const url = `${app.state.serverSlice.url}/users/register`;
+            const registerResponse = await fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(registerData),
+            });
+            return await registerResponse.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+      },
     },
   },
 
@@ -44,14 +314,18 @@ const app = {
     allFilterBtn: {
       id: "allFilter",
     },
+    asideNav: {
+      id: "aside",
+      element: htmlActions.getById("aside"),
+    },
   },
 
-  init() {
+  async init() {
     this.setupEventListeners();
   },
 
   setupEventListeners() {
-    this.getFromLs();
+    //this.getFromLs();
     window.addEventListener("hashchange", () => this.renderRoute());
     window.addEventListener("DOMContentLoaded", () => this.renderRoute());
   },
@@ -61,6 +335,7 @@ const app = {
 
     switch (currentRoute) {
       case "dashboard":
+        this.renderAsideNav();
         this.renderDashboard();
         break;
       case "newTask":
@@ -73,12 +348,17 @@ const app = {
         this.renderEventForm();
         break;
       case "nav":
-        console.log(window.outerWidth);
         if (Number(window.outerWidth) < 766) {
           this.renderMobileNav();
         } else {
           this.navigate("dashboard");
         }
+        break;
+      case "login":
+        this.renderLogin();
+        break;
+      case "register":
+        this.renderRegister();
         break;
       default:
         this.renderDashboard();
@@ -86,7 +366,19 @@ const app = {
     }
   },
 
-  renderDashboard() {
+  async renderDashboard() {
+    if (!this.state.userSlice.user) {
+      this.navigate("login");
+      return;
+    }
+
+    if (!this.state.eventsSlice.events || !this.state.tasksSlice.tasks) {
+      await this.state.tasksSlice.loadTasks();
+      await this.state.eventsSlice.loadEvents();
+    }
+
+    htmlActions.showElement(this.elements.asideNav.id);
+
     this.elements.main.element.innerHTML = dashboard(
       this.state.tasksSlice.tasks,
       this.state.eventsSlice.events
@@ -97,7 +389,7 @@ const app = {
       .forEach((task) => {
         const listElement = document.createElement("li");
         listElement.classList.add("task-card__list-item");
-        listElement.id = task.id;
+        listElement.id = task._id;
 
         listElement.innerHTML = `<div class="task-card__container">
                   <p class="task-card__expiration">${this.formatDate(
@@ -113,7 +405,7 @@ const app = {
         listElement.addEventListener("click", (e) => {
           this.state.tasksSlice.currentTask =
             this.state.tasksSlice.tasks.filter(
-              (task) => task.id === e.currentTarget.id
+              (task) => task._id === e.currentTarget.id
             )[0];
           this.navigate("newTask");
         });
@@ -128,7 +420,7 @@ const app = {
       .forEach((event) => {
         const listElement = document.createElement("li");
         listElement.classList.add("event-card__list-container");
-        listElement.id = event.id;
+        listElement.id = event._id;
 
         listElement.innerHTML = `<div class="event__weather-img" style="background-image: url(https://openweathermap.org/img/wn/${
           event.weatherData.icon
@@ -158,9 +450,9 @@ const app = {
         listElement.addEventListener("click", (e) => {
           this.state.eventsSlice.currentEvent =
             this.state.eventsSlice.events.find(
-              (event) => event.id === e.currentTarget.id
+              (event) => event._id === e.currentTarget.id
             );
-          console.log(this.state.eventsSlice.currentEvent);
+
           this.navigate("newEvent");
         });
 
@@ -205,6 +497,10 @@ const app = {
     });
   },
 
+  renderAsideNav() {
+    this.elements.asideNav.element.innerHTML = asideMenu();
+  },
+
   renderTaskForm() {
     this.elements.main.element.innerHTML = taskForm(
       this.state.tasksSlice.currentTask !== null
@@ -218,17 +514,31 @@ const app = {
         if (form[i] instanceof HTMLButtonElement) {
           continue;
         }
-        form[i].value = this.state.tasksSlice.currentTask[form[i].name];
+        const fieldName = form[i].name;
+        let value = this.state.tasksSlice.currentTask[fieldName];
+
+        if (form[i].type === "date") {
+          value = new Date(value).toISOString().split("T")[0];
+        }
+
+        form[i].value = value;
       }
     }
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      const updatedTask = {
+        title: e.target.title.value,
+        description: e.target.description.value,
+        dueDate: e.target.dueDate.value,
+        status: e.target.status.value,
+      };
+
       if (this.state.tasksSlice.currentTask) {
-        this.updateTask(e.target);
+        this.state.tasksSlice.updateTask(updatedTask);
       } else {
-        this.createTask(e.target);
+        this.state.tasksSlice.createTask(e.target);
       }
     });
 
@@ -245,7 +555,7 @@ const app = {
     if (this.state.tasksSlice.currentTask !== null) {
       const deleteTaskBtn = document.querySelector("#taskDeleteBtn");
       deleteTaskBtn.addEventListener("click", () => {
-        this.deleteTask(this.state.tasksSlice.currentTask.id);
+        this.state.tasksSlice.deleteTask(this.state.tasksSlice.currentTask._id);
       });
     }
   },
@@ -267,13 +577,23 @@ const app = {
       }
     }
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      const form = e.target;
+
+      const event = {
+        title: form.title.value,
+        date: form.date.value,
+        time: form.time.value,
+        details: form.details.value,
+        weatherData: await app.fetchWeather(form.date.value),
+      };
+
       if (this.state.eventsSlice.currentEvent) {
-        this.updateEvent(e.target);
+        this.state.eventsSlice.updateEvent(event);
       } else {
-        this.createEvent(e.target);
+        this.state.eventsSlice.createEvent(event);
       }
     });
 
@@ -288,10 +608,11 @@ const app = {
     });
 
     if (this.state.eventsSlice.currentEvent !== null) {
-      console.log("Botón de eliminar activado");
       const eventDeleteBtn = document.querySelector("#eventDeleteBtn");
       eventDeleteBtn.addEventListener("click", () => {
-        this.deleteEvent(this.state.eventsSlice.currentEvent.id);
+        this.state.eventsSlice.deleteEvent(
+          this.state.eventsSlice.currentEvent._id
+        );
       });
     }
   },
@@ -391,33 +712,47 @@ const app = {
     this.elements.main.element.innerHTML = mobileNav();
   },
 
-  createTask(form) {
-    const newTask = {
-      id: crypto.randomUUID(),
-      title: form.title.value,
-      description: form.description.value,
-      dueDate: form.dueDate.value,
-      status: form.status.value,
-    };
+  renderLogin() {
+    htmlActions.hideElement(this.elements.asideNav.id);
+    this.elements.main.element.innerHTML = loginSection();
+    const loginForm = document.querySelector("#loginForm");
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const loginData = {
+        email: e.target.email.value,
+        password: e.target.password.value,
+      };
 
-    let missingValues = [];
+      const login = await this.state.serverSlice.usersRepo.login(loginData);
 
-    for (let prop in newTask) {
-      if (!newTask[prop]) {
-        missingValues.push(prop);
+      if (login.loginData) {
+        this.state.userSlice.token = login.loginData.token;
+        this.state.userSlice.user = login.loginData.user;
+        this.navigate("dashboard");
       }
-    }
+    });
+  },
 
-    if (missingValues.length > 0) {
-      htmlActions.showSimpleDialog(
-        `Faltan campos obligatorios: ${missingValues.join(", ")}`
+  renderRegister() {
+    htmlActions.hideElement(this.elements.asideNav.id);
+    this.elements.main.element.innerHTML = registerForm();
+    const registerFormElement = document.querySelector("#registerForm");
+    registerFormElement.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const registerData = {
+        firstName: e.target.firstName.value,
+        lastName: e.target.lastName.value,
+        email: e.target.email.value,
+        password: e.target.password.value,
+      };
+
+      const registerResponse = await this.state.serverSlice.usersRepo.register(
+        registerData
       );
-    } else {
-      this.state.tasksSlice.tasks.push(newTask);
-      this.saveToLs();
-      this.navigate("dashboard");
-      htmlActions.showSimpleDialog("Task creada con éxito");
-    }
+
+      console.log(registerResponse);
+    });
   },
 
   async createEvent(form) {
@@ -447,39 +782,6 @@ const app = {
       this.saveToLs();
       this.navigate("dashboard");
       htmlActions.showSimpleDialog("Evento creado con éxito");
-    }
-  },
-
-  updateTask(form) {
-    const updatedTask = {
-      id: this.state.tasksSlice.currentTask.id,
-      title: form.title.value,
-      description: form.description.value,
-      dueDate: form.dueDate.value,
-      status: form.status.value,
-    };
-
-    let missingValues = [];
-
-    for (let prop in updatedTask) {
-      if (!updatedTask[prop]) {
-        missingValues.push(prop);
-      }
-    }
-
-    if (missingValues.length > 0) {
-      htmlActions.showSimpleDialog(
-        `Faltan campos obligatorios: ${missingValues.join(", ")}`
-      );
-    } else {
-      this.state.tasksSlice.tasks = this.state.tasksSlice.tasks.map((task) =>
-        task.id === updatedTask.id ? updatedTask : task
-      );
-
-      this.state.tasksSlice.currentTask = null;
-      this.saveToLs();
-      this.navigate("dashboard");
-      htmlActions.showSimpleDialog("Task modificada con éxito");
     }
   },
 

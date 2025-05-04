@@ -22,14 +22,14 @@ export function taskForm(isUpdate) {
 
             <div class="inputs-container">
               <label class="new-task__label" for="newTaskDate">Vencimiento</label>
-              <input required name='dueDate' class="new-task__input-date" id="newTaskDate" type="date">
+              <input required name="dueDate" class="new-task__input-date" id="newTaskDate" type="date">
             </div>
 
             <div class="inputs-container"><label class="new-task__label" for="newTaskSelect">Estatus</label>
               <select required name='status' class="new-task__select" id="newTaskSelect">
                 <option value="pendiente">Pendiente</option>
                 <option value="en proceso">En proceso</option>
-                <option value="completado">Completado</option>
+                <option value="completada">Completada</option>
               </select>
             </div>
             <div class="buttons-container">
