@@ -9,9 +9,48 @@ import { htmlActions } from "./src/utils/htmlActions.js";
 
 const app = {
   state: {
+    uiSlice: {
+      error: null,
+      setError(message) {
+        this.error = message;
+        htmlActions.showSimpleDialog(message);
+      },
+
+      clearError() {
+        this.error = null;
+      },
+    },
     userSlice: {
       token: null,
       user: null,
+      async loginUser(loginData) {
+        const loginResponse = await app.state.serverSlice.usersRepo.login(
+          loginData
+        );
+
+        if (loginResponse.success === "ok") {
+          this.token = loginResponse.loginData.token;
+          this.user = loginResponse.loginData.user;
+          app.navigate("dashboard");
+        }
+
+        if (loginResponse.success === "nok") {
+          //Dejo esto pendiente para ver cómo manejo la lógica de mostrar el error
+          app.state.uiSlice.setError(loginResponse.error);
+        }
+      },
+      async registerUser(newUser) {
+        const registerResponse = await app.state.serverSlice.usersRepo.register(
+          newUser
+        );
+
+        if (registerResponse.success === "ok") {
+          console.log(app.state);
+          this.token = registerResponse.registerResponse.token;
+          this.user = registerResponse.registerResponse.newUser;
+          app.navigate("dashboard");
+        }
+      },
     },
     tasksSlice: {
       tasks: null,
@@ -61,6 +100,16 @@ const app = {
         if (deleteTaskResponse.success === "ok") {
           await this.loadTasks();
           app.navigate("dashboard");
+        }
+      },
+      async filterTask(status) {
+        const filterTaskResponse =
+          await app.state.serverSlice.tasksRepo.filterTask(
+            status.toLowerCase()
+          );
+
+        if (filterTaskResponse.success === "ok") {
+          this.tasks = filterTaskResponse.filteredTasks;
         }
       },
     },
@@ -191,6 +240,23 @@ const app = {
                 Authorization: `Bearer ${app.state.userSlice.token}`,
               },
             });
+            return await result.json();
+          } catch (error) {
+            htmlActions.showSimpleDialog(error.message);
+          }
+        },
+
+        async filterTask(status) {
+          try {
+            const url = `${app.state.serverSlice.url}/tasks/filter/${status}`;
+            const result = await fetch(url, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${app.state.userSlice.token}`,
+              },
+            });
+
             return await result.json();
           } catch (error) {
             htmlActions.showSimpleDialog(error.message);
@@ -475,16 +541,14 @@ const app = {
           filterButtonElement.style.backgroundColor = "#9AF0FF";
           filterButtonElement.style.borderColor = "#9AF0FF";
         }
-        filterButton.addEventListener("click", (e) => {
+        filterButton.addEventListener("click", async (e) => {
           const filter = e.currentTarget.textContent;
           this.state.tasksSlice.filter = filter;
 
-          this.getFromLs();
-
           if (filter.toLowerCase() !== "todos") {
-            this.state.tasksSlice.tasks = this.state.tasksSlice.tasks.filter(
-              (task) => task.status.toLowerCase() === filter.toLowerCase()
-            );
+            await this.state.tasksSlice.filterTask(filter);
+          } else {
+            await this.state.tasksSlice.loadTasks();
           }
 
           this.renderDashboard();
@@ -723,13 +787,7 @@ const app = {
         password: e.target.password.value,
       };
 
-      const login = await this.state.serverSlice.usersRepo.login(loginData);
-
-      if (login.loginData) {
-        this.state.userSlice.token = login.loginData.token;
-        this.state.userSlice.user = login.loginData.user;
-        this.navigate("dashboard");
-      }
+      await this.state.userSlice.loginUser(loginData);
     });
   },
 
@@ -747,98 +805,8 @@ const app = {
         password: e.target.password.value,
       };
 
-      const registerResponse = await this.state.serverSlice.usersRepo.register(
-        registerData
-      );
-
-      console.log(registerResponse);
+      await this.state.userSlice.registerUser(registerData);
     });
-  },
-
-  async createEvent(form) {
-    const newEvent = {
-      id: crypto.randomUUID(),
-      title: form.title.value,
-      date: form.date.value,
-      time: form.time.value,
-      details: form.details.value,
-      weatherData: await this.fetchWeather(form.date.value),
-    };
-
-    let missingValues = [];
-
-    for (let prop in newEvent) {
-      if (!newEvent[prop]) {
-        missingValues.push(prop);
-      }
-    }
-
-    if (missingValues.length > 0) {
-      htmlActions.showSimpleDialog(
-        `Faltan campos obligatorios: ${missingValues.join(", ")}`
-      );
-    } else {
-      this.state.eventsSlice.events.push(newEvent);
-      this.saveToLs();
-      this.navigate("dashboard");
-      htmlActions.showSimpleDialog("Evento creado con éxito");
-    }
-  },
-
-  async updateEvent(form) {
-    const updatedEvent = {
-      id: this.state.eventsSlice.currentEvent.id,
-      title: form.title.value,
-      date: form.date.value,
-      time: form.time.value,
-      details: form.details.value,
-      weatherData: await this.fetchWeather(form.date.value),
-    };
-    let missingValues = [];
-
-    for (let prop in updatedEvent) {
-      if (!updatedEvent[prop]) {
-        missingValues.push(prop);
-      }
-    }
-
-    if (missingValues.length > 0) {
-      htmlActions.showSimpleDialog(
-        `Faltan campos obligatorios: ${missingValues.join(", ")}`
-      );
-    } else {
-      this.state.eventsSlice.events = this.state.eventsSlice.events.map(
-        (event) => (event.id === updatedEvent.id ? updatedEvent : event)
-      );
-      this.state.eventsSlice.currentEvent = null;
-      this.saveToLs();
-      this.navigate("dashboard");
-      htmlActions.showSimpleDialog("Evento modificado con éxito");
-    }
-  },
-
-  deleteTask(taskId) {
-    const filteredTasks = this.state.tasksSlice.tasks.filter(
-      (task) => task.id !== taskId
-    );
-
-    this.state.tasksSlice.tasks = filteredTasks;
-    this.state.tasksSlice.currentTask = null;
-    this.saveToLs();
-    this.navigate("dashboard");
-    htmlActions.showSimpleDialog("Task eliminada con éxito");
-  },
-
-  deleteEvent(eventId) {
-    const filteredEvents = this.state.eventsSlice.events.filter(
-      (event) => event.id !== eventId
-    );
-
-    this.state.eventsSlice.events = filteredEvents;
-    this.state.eventsSlice.currentEvent = null;
-    this.saveToLs();
-    this.navigate("dashboard");
-    htmlActions.showSimpleDialog("Evento eliminado con éxito");
   },
 
   async fetchNews(topic = "code") {

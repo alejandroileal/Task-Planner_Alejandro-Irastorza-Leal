@@ -21,7 +21,7 @@ export function dashboard(tasks, events) {
               <p class="cards__filter-option" id='allFilter'>Todos</p>
               <p class="cards__filter-option" id='pendingFilter'>Pendiente</p>
               <p class="cards__filter-option" id='inProgressFilter'>En Proceso</p>
-              <p class="cards__filter-option" id='completedFilter'>Completado</p>
+              <p class="cards__filter-option" id='completedFilter'>Completada</p>
             </div>
             ${
               tasks.length === 0
