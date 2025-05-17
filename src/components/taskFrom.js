@@ -1,3 +1,5 @@
+// Observación: Buena práctica separando formularios en componentes independientes
+// Sugerencia: Considerar implementar un sistema de validación más robusto
 export function taskForm(isUpdate) {
   return `<section id="section-2" class="dashboard__section">
         <div class="dashboard__top-navigator">
@@ -47,3 +49,4 @@ export function taskForm(isUpdate) {
         </div>
       </section>`;
 }
+

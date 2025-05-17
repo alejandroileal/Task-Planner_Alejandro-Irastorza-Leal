@@ -1,3 +1,5 @@
+// Observación: Buena práctica separando componentes de UI en módulos independientes
+// Sugerencia: Considerar usar un sistema de templates más robusto
 export function dashboard(tasks, events) {
   return `<section id="section-1" class="dashboard__section">
         <div class="dashboard__top-navigator">

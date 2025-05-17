@@ -1,3 +1,5 @@
+// Observación: Buena práctica centralizando utilidades DOM en un módulo independiente
+// Sugerencia: Considerar implementar un sistema de selectores más robusto
 export const htmlActions = {
   getById: (id) => document.getElementById(id),
   refreshElement: (elementId, callback) => {

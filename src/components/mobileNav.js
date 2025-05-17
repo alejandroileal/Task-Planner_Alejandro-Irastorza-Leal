@@ -1,3 +1,5 @@
+// Observación: Buena práctica separando la navegación móvil en un componente independiente
+// Sugerencia: Considerar implementar un sistema de navegación más robusto
 export function mobileNav() {
   return `<aside class="dashboard__aside--mobile">
       <div class="dashboard__logo-container">
