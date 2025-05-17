@@ -40,8 +40,7 @@ export function taskForm(isUpdate) {
             }</button>
             ${
               isUpdate
-                ? `<button type='button' id="taskDeleteBtn" class="new-task__delete-button">Eliminar task</button>`
-                : ""
+                ? `<button type='button' id="taskDeleteBtn" class="new-task__delete-button">Eliminar task</button>`                : ""
             }
             <button type='button' id="taskCancelBtn" class="new-task__submit-button">Cancelar</button>
             </div>
@@ -49,4 +48,3 @@ export function taskForm(isUpdate) {
         </div>
       </section>`;
 }
-

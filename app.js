@@ -1,5 +1,3 @@
-// Observación: Buena práctica usando módulos ES6 para importaciones
-// Sugerencia: Considerar usar un sistema de bundling para mejor organización
 import { dashboard } from "./src/components/dashboard.js";
 import { eventForm } from "./src/components/eventForm.js";
 import { mobileNav } from "./src/components/mobileNav.js";

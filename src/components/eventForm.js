@@ -1,5 +1,3 @@
-// Observación: Buena práctica separando formularios en componentes independientes
-// Sugerencia: Considerar implementar un sistema de validación más robusto
 export function eventForm(isUpdate) {
   return `<section id="section-4" class="dashboard__section">
         <div class="dashboard__top-navigator">
